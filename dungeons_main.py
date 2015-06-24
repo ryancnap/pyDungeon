@@ -29,27 +29,82 @@ class PlayerClass(object):
 
 	def move(self, Room, exit = 0):
 
-		print "You enter the next room.\n"
-		print "This is the {0}.".format(Room.description)
+		""" Takes room instance; responsible for moving when there
+			are multiple exits.
+		"""
+		print('\n---You enter the next room.---')
+		print('This is the {0}.'.format(Room.description))
+
 		Room.scenario_initiator()
+		Room.decision_handler()
+
+	def inventory_adder(self, room):
+
+		""" Only responsible for adding items to inventory.
+			Needs room instance as an argument so we can
+			accept the specific room's list of treasure.
+		"""
+
+		if not room._has_treasure():
+			print('There doesn\'t seem to be any more loot here.')
+
+		if room._has_treasure():
+			for item in room.treasure:
+				print('*Added {0} to inventory*'.format(item))
+				self.inventory[item] = ''
+				room.treasure = []
+
+	def inventory_manager(self, room):
+
+		""" Shows inventory to player. Gives option to drop an item
+			by typing the exact item name. Needs room instance so
+			we can drop specified items in whichever room we're
+			currently in.
+		"""
+
+		done_with_inventory = False
+
+		while not done_with_inventory:
+
+			print('\n---INVENTORY---')
+			print('<-item-> Drop specified item.')
+			print('<-exit-> Exit inventory manager\n')
+
+			for item, description in enumerate(self.inventory):
+				print(description)
+
+			choice = raw_input('> ')
+			if choice == 'exit':
+				done_with_inventory = True
+
+			elif choice not in self.inventory:
+				print('You don\'t have a {0}\n'.format(choice))
+
+			elif choice in self.inventory:
+				del self.inventory[choice]
+				room.treasure.append(choice)
+				print('*You dropped the {0}*\n'.format(choice))
 
 
-class CreateRoom(object):
+
+class RoomManager(object):
 
 
 	"""Used to manage rooms, create and populate them."""
-	def __init__(self, description = "", exits = 1, enemies = [], treasure = []):
-		super(CreateRoom, self).__init__()
+	def __init__(self, description = "", exits = 1, enemies = [],
+				treasure = [], long_description = ""):
+		super(RoomManager, self).__init__()
 		self.description = description
 		self.exits = exits
 		self.enemies = enemies
 		self.treasure = treasure
+		self.long_description = long_description
 
 	def show_treasure(self):
 
 		"""Prints room's treasure list. This method is validated by the *_has_treasure* method."""
 
-		print 'This room has some treasure in it: '
+		print('This room has some treasure in it: ')
 		for treasure in self.treasure:
 			print('   * {0}'.format(treasure))
 
@@ -81,7 +136,7 @@ class CreateRoom(object):
 			pass
 		else:
 			# Handle room events.
-			print('No enemies.')
+			print('Doesn\'t seem to be anything around...')
 			pass
 
 	def scenario_initiator(self):
@@ -100,21 +155,62 @@ class CreateRoom(object):
 		else:
 			self.show_treasure()
 
+	def decision_handler(self):
+
+		"""Handles the room's logic, where the player wants to go, etc."""
+
+		player_hasnt_moved = True
+		while player_hasnt_moved:
+
+			print('\n---What would you like to do?---')
+			print('<-i View inventory->  '),
+			print('<-s Show stats->  \n')
+
+			if self._has_treasure():
+				print('<-take-> Take the treasure')
+			if self.long_description != "":
+				print('<-explore-> Look around the {0}'.format(self.description))
+			if self.exits > 0:
+				print('<-move-> Move to the next room')
+			elif self.exits == 0:
+				print('<-go back-> Return to the next room')
+
+			player_decision = raw_input('\n')
+			player_decision.lower()
+
+			if player_decision == 'i':
+				Ryan.inventory_manager(self)
+
+			if player_decision == 's':
+				print(Ryan.stats)
+
+			if player_decision == 'take':
+				Ryan.inventory_adder(self)
+
+
+			if player_decision == 'explore':
+				print(self.long_description)
+
+			if player_decision == 'move':
+				# TODO: Call move() to go to next room
+				player_hasnt_moved = False
+
 
 
 # Set up a player character
 Ryan = PlayerClass()
 
 # Make some rooms with enemies and treasure!
-entrance = CreateRoom('Entrance', 1, enemies = [], treasure = ['Pile of gold'])
-cave = CreateRoom('Gloomy Cave', 3, enemies = ['Aggro Lizard'], treasure = ['Another watch'])
-small_cove = CreateRoom('Small Cove', 1, enemies = ['Bootguard'], treasure = ['Thirsty Boot', 'Clock'])
+entrance = RoomManager('Entrance', 1, treasure = ['Pile of gold'])
+cave = RoomManager('Gloomy Cave', 3, enemies = ['Aggro Lizard'], treasure = ['Another watch'])
+small_cove = RoomManager('Small Cove', 0, enemies = ['Bootguard'], treasure = ['Thirsty Boot', 'Clock'])
 
+small_cove.long_description = 'There seems to be a body in the corner'
+cave.long_description = 'Swing town'
 # Move the player to the entrance room and start the game.
-# Is the *move* method doing too much work? Does it know too much? What are the external
-# requirements for *move* to do its job correctly?
 Ryan.move(entrance)
 Ryan.move(small_cove)
+Ryan.move(cave)
 
 
 
