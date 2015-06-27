@@ -100,11 +100,14 @@ class RoomManager(object):
 		self.treasure = treasure
 		self.long_description = long_description
 
+		self.player_entered_inventory = None
+
 	def show_treasure(self):
 
 		"""Prints room's treasure list. This method is validated by the *_has_treasure* method."""
+		if not self.player_entered_inventory:
+			print('This room has some treasure in it: ')
 
-		print('This room has some treasure in it: ')
 		for treasure in self.treasure:
 			print('   * {0}'.format(treasure))
 
@@ -159,6 +162,7 @@ class RoomManager(object):
 
 		"""Handles the room's logic, where the player wants to go, etc."""
 
+
 		player_hasnt_moved = True
 		while player_hasnt_moved:
 
@@ -170,15 +174,18 @@ class RoomManager(object):
 				print('<-take-> Take the treasure')
 			if self.long_description != "":
 				print('<-explore-> Look around the {0}'.format(self.description))
+			if self.player_entered_inventory and self._has_treasure():
+				print('<-look-> What\'s dropped on the floor?')
 			if self.exits > 0:
 				print('<-move-> Move to the next room')
-			elif self.exits == 0:
+			if self.exits == 0:
 				print('<-go back-> Return to the next room')
 
 			player_decision = raw_input('\n')
 			player_decision.lower()
 
 			if player_decision == 'i':
+				self.player_entered_inventory = True
 				Ryan.inventory_manager(self)
 
 			if player_decision == 's':
@@ -187,6 +194,9 @@ class RoomManager(object):
 			if player_decision == 'take':
 				Ryan.inventory_adder(self)
 
+			if player_decision == 'look' and self._has_treasure():
+				print('Just some junk: ')
+				self.show_treasure()
 
 			if player_decision == 'explore':
 				print(self.long_description)
