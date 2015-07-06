@@ -7,6 +7,8 @@
 	Licensed under the GNU GPL. See LICENSE.txt for details.
 """
 
+from NPC import NPCCreator
+
 
 class PlayerClass(object):
 
@@ -209,11 +211,18 @@ class RoomManager(object):
 
 # Set up a player character
 Ryan = PlayerClass()
+john = NPCCreator()
+john.name = 'john'
 
 # Make some rooms with enemies and treasure!
 entrance = RoomManager('Entrance', 1, treasure = ['Pile of gold'])
 cave = RoomManager('Gloomy Cave', 3, enemies = ['Aggro Lizard'], treasure = ['Another watch'])
 small_cove = RoomManager('Small Cove', 0, enemies = ['Bootguard'], treasure = ['Thirsty Boot', 'Clock'])
+
+
+"""Test john"""
+john.get_dialogue_options()
+john.speak()
 
 small_cove.long_description = 'There seems to be a body in the corner'
 cave.long_description = 'Swing town'
