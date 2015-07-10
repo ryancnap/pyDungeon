@@ -4,7 +4,7 @@ class RoomManager(object):
 
 
 	"""Used to manage rooms, create and populate them."""
-	def __init__(self, description = "", exits = 1, enemies = [],
+	def __init__(self, description = "", exits = {}, enemies = [],
 				treasure = [], long_description = ""):
 		super(RoomManager, self).__init__()
 		self.description = description
@@ -12,6 +12,35 @@ class RoomManager(object):
 		self.enemies = enemies
 		self.treasure = treasure
 		self.long_description = long_description
+
+	def _has_exits(self):
+
+		"""Helper method for _exit_maker()"""
+
+		if len(self.exits) != 0: return True
+		else: return False
+
+
+	def _exit_choice(self):
+
+		if self._has_exits():
+			print('---You see the following means of exit: ---')
+
+			# Print a list of the room's exits which are assigned
+			# in the RoomManager constructor.
+			print('\n{0}\n').format(' \n'.join([k for k in self.exits.iterkeys()]))
+
+			# The key in the *exits* dict is a description of the exit;
+			# the value should be the RoomManager instance it links to.
+			player_exit_choice = raw_input('Where would you like to go?')
+
+			# Throw the *player_choice* string back to the move() method
+			# The logic for moving between rooms and making decisions should
+			# be handled by the method that's responsible for moving :)
+			return player_exit_choice
+
+
+
 
 	def show_treasure(self):
 
@@ -83,9 +112,9 @@ class RoomManager(object):
 				print('<-take-> Take the treasure')
 			if self.long_description != "":
 				print('<-explore-> Look around the {0}'.format(self.description))
-			if self.exits > 0:
+			if self._has_exits():
 				print('<-move-> Move to the next room')
-			elif self.exits == 0:
+			elif not self._has_exits():
 				print('<-go back-> Return to the next room')
 
 			player_decision = raw_input('\n')
@@ -105,5 +134,25 @@ class RoomManager(object):
 				print(self.long_description)
 
 			if player_decision == 'move':
-				# TODO: Call move() to go to next room
+				# First break out of the input loop by saying the player has
+				# now moved and this room's decision logic can end.
 				player_hasnt_moved = False
+
+				# Run RoomManager's exit choice method to prompt the player
+				# which exit to choose.
+				exit = self._exit_choice()
+
+				# The provided string should match the key in the
+				# current room instance's *exits* dict.
+				if exit in self.exits.keys():
+
+					# Reassign *exit* to be the key's value.
+					exit = self.exits[exit]
+
+					# This is why RoomManager's *exits* attribute is a
+					# dictionary; each exit(key) maps to a different
+					# RoomManager instance(value).
+					# Keepin' it seperable baby;)
+					PlayerClass().move(exit)
+
+

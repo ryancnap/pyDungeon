@@ -2,6 +2,10 @@ from Player import PlayerClass
 from NPC import NPCCreator
 from Rooms import RoomManager
 
+# Global list variable room_list
+# room_list = {'Entrance' : entrance.}
+
+
 # Create a player named Ryan, and an NPC named John.
 ryan = PlayerClass()
 john = NPCCreator()
@@ -22,15 +26,20 @@ john.get_dialogue_options()
 # RoomManager instances are created with a mix of
 # mandatory and named (optional) instance paramaters. The class signature
 # looks like:
-# (self, description = "", exits = 1, enemies = [],
+# (self, description = "", exits = {}, enemies = [],
 # treasure = [], long_description = "")
-entrance = RoomManager('Entrance', 1, treasure = ['Pile of gold'])
+# For the style of this project, and since constructors are already quite
+# long, the appropriate way to assign long description attribute is after
+# the instantiation of a RoomManager object.
 
-cave = RoomManager('Gloomy Cave', 3, enemies = ['Aggro Lizard'],
+small_cove = RoomManager('Small Cove', exits = {}, enemies = ['Bootguard'],
+ treasure = ['Thirsty Boot', 'Clock'])
+
+cave = RoomManager('Gloomy Cave', exits = {'oak portcullis': 1}, enemies = ['Aggro Lizard'],
  treasure = ['Another watch'])
 
-small_cove = RoomManager('Small Cove', 0, enemies = ['Bootguard'],
- treasure = ['Thirsty Boot', 'Clock'])
+entrance = RoomManager('Entrance', exits = {'dusty door': cave, 'hole': small_cove}, treasure = ['Pile of gold'])
+
 
 # Test that NPCCreator instance john can speak; ie, we can use the
 # string of text that we read in from the john NPC's dialogue.txt file
@@ -45,14 +54,17 @@ john.speak()
 small_cove.long_description = 'There seems to be a body in the corner'
 cave.long_description = 'Swing town'
 
-# The move function will eventually work on a stack of rooms, or might be
-# implemented as a two-dimensional array, and will accept an id along with
-# the number of exits to the RoomManager instance it's called from, to
-# determine where the user can move and where each exit leads.
-#
 # Until the method is refactored, it must be called manually with the instance
 # of RoomManager rooms as it's first and only argument.
 # Move through the three rooms we created above.
+# IMPORTANT: This method now only exists here for testing purposes,
+# and because I've been generally lazy.
+# Player instance's move() method is now called from within the RoomManager
+# instance; alot of other sexy magic goes on with RoomManager helper methods,
+# but ultimately move() is called after the player has been presented with a
+# list of options in the form of exits to rooms; the exits are instantiated
+# in RoomManager constructors as dictionaries, where keys are user-facing
+# exit names and values are RoomManager instances that said exits lead to.
 ryan.move(entrance)
-ryan.move(small_cove)
-ryan.move(cave)
+#ryan.move(small_cove)
+#ryan.move(cave)

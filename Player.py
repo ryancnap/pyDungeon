@@ -24,11 +24,15 @@ class PlayerClass(object):
 		""" Takes room instance; responsible for moving when there
 			are multiple exits.
 		"""
+
 		print('\n---You enter the next room.---')
 		print('This is the {0}.'.format(Room.description))
 
+		#exit_choice = Room.exit_choice()
 		Room.scenario_initiator()
 		Room.decision_handler()
+
+
 
 	def inventory_adder(self, room):
 
