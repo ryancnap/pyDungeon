@@ -13,6 +13,8 @@ class RoomManager(object):
 		self.treasure = treasure
 		self.long_description = long_description
 
+		self.special = False
+
 	def _has_exits(self):
 
 		"""Helper method for _exit_maker()"""
@@ -66,7 +68,8 @@ class RoomManager(object):
 
 	def play_enemy_scenario(self):
 
-		"""Scenario for handling enemies in a room."""
+		""" Normal scenario for handling enemies in a room.
+		"""
 
 		if len(self.enemies) > 1 and len(self.enemies) > 0:
 			# Implement more-than-one-enemy logic.
@@ -80,6 +83,17 @@ class RoomManager(object):
 			# Handle room events.
 			print('Doesn\'t seem to be anything around...')
 			pass
+
+	def set_special(self, has_special):
+
+		""" Used to set the *special* attribute of the room instance to
+			trigger special events; room.play_special_event()
+		"""
+		if has_special == True:
+			self.special = True
+
+	def play_special_scenario(self):
+		raise NotImplementedError
 
 	def scenario_initiator(self):
 
@@ -97,6 +111,7 @@ class RoomManager(object):
 		else:
 			self.show_treasure()
 
+	# The big boy.
 	def decision_handler(self):
 
 		"""Handles the room's logic, where the player wants to go, etc."""
@@ -120,6 +135,7 @@ class RoomManager(object):
 			player_decision = raw_input('\n')
 			player_decision.lower()
 
+
 			if player_decision == 'i':
 				PlayerClass().inventory_manager(self)
 
@@ -133,7 +149,7 @@ class RoomManager(object):
 			if player_decision == 'explore':
 				print(self.long_description)
 
-			if player_decision == 'move':
+			if player_decision == 'move' and self.special == False:
 				# First break out of the input loop by saying the player has
 				# now moved and this room's decision logic can end.
 				player_hasnt_moved = False
@@ -154,5 +170,9 @@ class RoomManager(object):
 					# RoomManager instance(value).
 					# Keepin' it seperable baby;)
 					PlayerClass().move(exit)
+			elif player_decision == 'move' and self.special == True:
+				raise NotImplementedError
+				# Call a room instance's play_special_event() method.
+				self.play_special_event()
 
 

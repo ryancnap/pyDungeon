@@ -38,6 +38,20 @@ small_cove = RoomManager('Small Cove', exits = {}, enemies = ['Bootguard'],
 cave = RoomManager('Gloomy Cave', exits = {'oak portcullis': 1}, enemies = ['Aggro Lizard'],
  treasure = ['Another watch'])
 
+# The following line dealing with special features to rooms is not fully
+# implemented yet. If a room instance's *special* attribute is set to True,
+# the room's decision_handler will automatically play a special scenario AFTER
+# the player has chosen to move from the room. That logic works fine, however
+# can't figure out yet how to robustly/neatly define unique code structures
+# for certain instance objects, aside from importing a separate room file
+# (*.py) and immediaely running it. This would be done in much the same
+# way as a DialogueManager.DialogueManager() -style import, so we should
+# inherit from that to keep things DRY around here.
+# Are inline imports bad form?
+# Response to myself after a couple minutes on google: ^ hell yes they're bad,
+# think of a better implementation instead of designing this like a fool!
+cave.set_special(True)
+
 entrance = RoomManager('Entrance', exits = {'dusty door': cave, 'hole': small_cove}, treasure = ['Pile of gold'])
 
 
